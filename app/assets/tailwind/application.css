@@ -93,11 +93,23 @@
     @apply border-accent bg-accent text-white;
   }
 
+  .mic[data-mic-state="transcribing"] {
+    @apply cursor-wait border-accent bg-accent-soft text-accent;
+  }
+
   .mic[data-mic-state="listening"] .mic-icon-idle {
     display: none;
   }
 
   .mic[data-mic-state="listening"] .mic-icon-stop {
+    display: block;
+  }
+
+  .mic[data-mic-state="transcribing"] .mic-icon-idle {
+    display: none;
+  }
+
+  .mic[data-mic-state="transcribing"] .mic-icon-stop {
     display: block;
   }
 
@@ -127,6 +139,10 @@
   }
 
   [data-controller~="mic"].is-listening [data-mic-target="liveHint"] {
+    display: inline-flex;
+  }
+
+  [data-controller~="mic"].is-transcribing [data-mic-target="liveHint"] {
     display: inline-flex;
   }
 

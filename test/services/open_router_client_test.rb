@@ -23,4 +23,32 @@ class OpenRouterClientTest < ActiveSupport::TestCase
       { meal_type: "snack", description: "chocolat" }
     ], result[:meals]
   end
+
+  test "parses transcription response" do
+    result = OpenRouterClient.new.parse_transcription_response({
+      text: " Bonjour le carnet. ",
+      usage: { seconds: 3.2 }
+    }.to_json)
+
+    assert_equal "Bonjour le carnet.", result[:text]
+    assert_equal({ "seconds" => 3.2 }, result[:usage])
+    assert_equal OpenRouterClient.transcription_model, result[:model]
+  end
+
+  test "transcription requires the voice api key" do
+    original_fetch = ENV.method(:fetch)
+    ENV.define_singleton_method(:fetch) do |key, *args, &block|
+      key == "OPENROUTER_VOICE_API_KEY" ? block.call : "present"
+    end
+
+    begin
+      error = assert_raises(OpenRouterClient::Error) do
+        OpenRouterClient.new.transcribe_audio(data: "audio", format: "webm")
+      end
+
+      assert_equal "OPENROUTER_VOICE_API_KEY manquante", error.message
+    ensure
+      ENV.define_singleton_method(:fetch) { |*args, **kwargs, &block| original_fetch.call(*args, **kwargs, &block) }
+    end
+  end
 end

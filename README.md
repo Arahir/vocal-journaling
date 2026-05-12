@@ -10,12 +10,13 @@ bin/rails db:prepare
 cp .env.example .env
 ```
 
-Remplir ensuite `OPENROUTER_API_KEY` dans `.env`.
+Remplir ensuite `OPENROUTER_API_KEY` et `OPENROUTER_VOICE_API_KEY` dans `.env`.
 
-Le modèle utilisé est visible dans l'UI. Par défaut :
+Les modèles utilisés sont configurables. Par défaut :
 
 ```sh
 OPENROUTER_MODEL=anthropic/claude-sonnet-4
+OPENROUTER_TRANSCRIPTION_MODEL=openai/whisper-large-v3-turbo
 ```
 
 ## Lancer l'app

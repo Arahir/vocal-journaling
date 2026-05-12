@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resource :registration, only: %i[new create]
   resource :session, only: %i[new create destroy]
   resources :passwords, param: :token, only: %i[new create edit update]
+  resource :transcription, only: :create
 
   resources :entries, only: %i[show update], param: :date do
     member do

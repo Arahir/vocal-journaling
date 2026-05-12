@@ -1,44 +1,57 @@
 <% content_for :title, "Historique" %>
 
-<div class="space-y-6">
-  <header class="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-sm font-medium text-stone-500">Journal</p>
-      <h1 class="mt-1 text-3xl font-semibold tracking-normal text-stone-950">Historique</h1>
-    </div>
-    <nav class="flex flex-wrap gap-2 text-sm">
-      <%= link_to "Aujourd'hui", root_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-      <%= link_to "Export", export_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-    </nav>
-  </header>
+<main class="mx-auto max-w-content px-7 pt-12 pb-32">
+  <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Historique</h1>
+  <p class="mb-9 font-sans text-sm text-ink-mute">
+    <%= pluralize(@entries_count, "jour noté", "jours notés") %>.
+  </p>
 
   <% if @entries.any? %>
-    <div class="divide-y divide-stone-200 overflow-hidden rounded-md border border-stone-200 bg-white shadow-sm">
+    <div class="flex flex-col">
       <% @entries.each do |entry| %>
-        <%= link_to entry_path(entry.entry_date.iso8601), class: "block px-4 py-4 hover:bg-stone-50" do %>
-          <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-            <h2 class="font-medium text-stone-950"><%= l(entry.entry_date, format: :long) %></h2>
-            <% if entry.processed? %>
-              <span class="text-xs text-stone-500">traitée <%= l(entry.processed_at, format: :short) %></span>
+        <%= link_to entry_path(entry.entry_date.iso8601),
+              class: "group grid grid-cols-[140px_1fr_auto] items-baseline gap-7 border-t border-rule py-[18px] text-ink no-underline transition-[padding] hover:px-2 last:border-b max-sm:grid-cols-1 max-sm:gap-2" do %>
+          <div class="font-serif text-[17px] font-medium tracking-tightish">
+            <%= l(entry.entry_date, format: "%-d %B") %>
+            <span class="mt-0.5 block font-sans text-[11px] font-normal uppercase tracking-wide text-ink-faint">
+              <%= l(entry.entry_date, format: "%a %Y") %>
+            </span>
+          </div>
+
+          <div class="<%= entry.summary.present? ? "line-clamp-1 font-serif text-[15.5px] text-ink-soft italic" : "font-serif text-[15.5px] text-ink-mute" %>">
+            <% if entry.summary.present? %>
+              <%= entry.summary.split(/(?<=[.!?])\s+/).first %>
+            <% else %>
+              Brouillon, non traité
             <% end %>
           </div>
-          <p class="mt-2 text-sm leading-6 text-stone-600"><%= entry.summary_excerpt %></p>
+
+          <div class="inline-flex items-center gap-2 font-sans text-[11.5px] text-ink-faint max-sm:hidden">
+            <% if entry.summary.blank? %>
+              <span class="h-[5px] w-[5px] rounded-full bg-ink-faint"></span>
+              non traité
+            <% else %>
+              <span class="-translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">→</span>
+            <% end %>
+          </div>
         <% end %>
       <% end %>
     </div>
 
-    <div class="flex items-center justify-between">
-      <% if @page > 1 %>
-        <%= link_to "Page précédente", history_path(page: @page - 1), class: "rounded-md border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-white" %>
+    <nav class="mt-9 flex justify-between font-sans text-[13px]">
+      <% if @has_next_page %>
+        <%= link_to "‹ Plus ancien", history_path(page: @page + 1), class: "text-ink-mute hover:text-ink" %>
       <% else %>
-        <span></span>
+        <span class="text-ink-mute opacity-35">‹ Plus ancien</span>
       <% end %>
 
-      <% if @has_next_page %>
-        <%= link_to "Page suivante", history_path(page: @page + 1), class: "rounded-md border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 hover:bg-white" %>
+      <% if @page > 1 %>
+        <%= link_to "Plus récent ›", history_path(page: @page - 1), class: "text-ink-mute hover:text-ink" %>
+      <% else %>
+        <span class="text-ink-mute opacity-35">Plus récent ›</span>
       <% end %>
-    </div>
+    </nav>
   <% else %>
-    <p class="rounded-md border border-stone-200 bg-white px-4 py-6 text-sm text-stone-600">Aucune entrée pour ce compte.</p>
+    <p class="border-t border-b border-rule py-8 font-serif text-[15.5px] text-ink-mute">Aucune entrée pour ce compte.</p>
   <% end %>
-</div>
+</main>

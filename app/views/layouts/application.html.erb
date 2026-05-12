@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <title><%= content_for(:title) || "Matthieu Vocal Journaling" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title><%= content_for(:title) || "Carnet" %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Matthieu Vocal Journaling">
+    <meta name="application-name" content="Carnet">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
@@ -23,13 +28,32 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-stone-50 text-stone-950 antialiased">
-    <div id="flash" class="mx-auto w-full max-w-5xl px-4 pt-4 sm:px-6">
+  <body class="bg-paper text-lg text-ink antialiased font-serif">
+    <header class="mx-auto flex max-w-content items-baseline justify-between gap-6 px-7 pt-7">
+      <%= link_to root_path, class: "inline-flex items-baseline gap-2 text-[17px] font-medium tracking-tightish text-ink no-underline" do %>
+        <span class="inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-accent"></span>
+        Carnet
+      <% end %>
+
+      <% if authenticated? %>
+        <nav class="flex flex-wrap items-center justify-end gap-x-6 gap-y-2 font-sans text-sm text-ink-mute">
+          <% nav_link = ->(label, path, active) do
+               classes = "border-b pb-0.5 no-underline transition-colors " +
+                 (active ? "border-accent text-ink" : "border-transparent hover:text-ink")
+               link_to(label, path, class: classes)
+             end %>
+          <%= nav_link.call("Aujourd'hui", entry_path(Date.current.iso8601), controller_name == "entries") %>
+          <%= nav_link.call("Historique", history_path, controller_name == "history") %>
+          <%= nav_link.call("Export", export_path, controller_name == "exports") %>
+          <%= button_to "Sortir", session_path, method: :delete, form: { class: "inline" }, class: "border-0 bg-transparent p-0 font-sans text-sm text-ink-mute underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-rule-strong" %>
+        </nav>
+      <% end %>
+    </header>
+
+    <div id="flash" class="mx-auto w-full max-w-content px-7 pt-5">
       <%= render "shared/flash" %>
     </div>
 
-    <main class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
-      <%= yield %>
-    </main>
+    <%= yield %>
   </body>
 </html>

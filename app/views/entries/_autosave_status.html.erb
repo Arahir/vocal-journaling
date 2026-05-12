@@ -1,9 +1,0 @@
-<turbo-frame id="autosave_status">
-  <p data-autosave-target="status" class="min-h-5 text-sm text-stone-500">
-    <% if saved_at.present? %>
-      Sauvegardé à <%= l(saved_at, format: :time) %>
-    <% else %>
-      Pas encore sauvegardé
-    <% end %>
-  </p>
-</turbo-frame>

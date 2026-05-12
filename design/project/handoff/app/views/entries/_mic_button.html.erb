@@ -1,0 +1,49 @@
+<%# Bouton micro — Web Speech API. Tap = toggle (commence/arrête). %>
+<%# Les états visuels sont pilotés par [data-mic-state] (idle/listening/unsupported). %>
+<%# Styles : voir application.tailwind.css @layer components { .mic } %>
+
+<div class="fixed right-0 bottom-0 pointer-events-none z-40">
+  <div class="relative pointer-events-auto" data-controller="mic">
+
+    <%# Live indicator — visible uniquement pendant l'écoute %>
+    <div class="absolute right-1/2 bottom-[88px] translate-x-1/2 hidden items-center gap-1.5
+                font-sans text-[11.5px] uppercase tracking-wider text-accent bg-paper
+                px-3 py-1 rounded-pill border border-accent-ring pointer-events-none
+                animate-fade-in-up"
+         data-mic-target="liveHint"
+         aria-hidden="true">
+      <span class="w-[5px] h-[5px] rounded-full bg-accent animate-blip"></span>
+      Écoute…
+    </div>
+
+    <button type="button"
+            class="mic mr-7 mb-10 md:mr-[max(28px,calc(50vw-360px-84px))]"
+            data-mic-target="button"
+            data-mic-state="idle"
+            data-action="click->mic#toggle"
+            aria-label="Commencer la dictée">
+
+      <%# Icône micro (état idle) %>
+      <svg class="mic-icon-idle" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <rect x="8" y="3" width="6" height="11" rx="3" fill="currentColor"/>
+        <path d="M5 11a6 6 0 0 0 12 0M11 17v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+
+      <%# Icône stop (état listening) — masquée par défaut, révélée par [data-mic-state="listening"] %>
+      <svg class="mic-icon-stop" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="10" height="10" rx="1.5" fill="currentColor"/>
+      </svg>
+    </button>
+
+    <%# Tooltip — visible uniquement quand le navigateur ne supporte pas %>
+    <div class="absolute bottom-full right-0 mb-2.5 mr-7 hidden
+                bg-ink text-paper font-sans text-[11.5px] leading-snug
+                px-2.5 py-1.5 rounded-md w-[200px] shadow-popover"
+         data-mic-target="tooltip"
+         role="tooltip">
+      Dictée non supportée. Essaie Chrome ou Safari.
+      <span class="absolute top-full right-[18px] w-0 h-0 border-[5px] border-transparent border-t-ink"></span>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<%# /export — utilitaire, fait son job sans cérémonie. %>
+
+<main class="mx-auto max-w-content px-7 pt-12 pb-32">
+  <h1 class="font-serif text-2xl font-medium tracking-tight2 mb-2">Exporter les repas</h1>
+  <p class="font-sans text-sm text-ink-mute mb-9 max-w-[480px] leading-relaxed">
+    Télécharge un fichier markdown récapitulant les repas sur la période choisie. Pratique pour partager avec un·e diététicien·ne.
+  </p>
+
+  <%= form_with url: export_path(format: :md), method: :get, local: true,
+                class: "flex flex-col gap-5 max-w-[460px]" do |f| %>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1.5">
+        <%= f.label :from, "Du", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+        <%= f.date_field :from,
+              value: (Date.current - 30.days),
+              max: Date.current,
+              class: "bg-transparent border-0 border-b border-rule-strong py-2 font-serif text-[17px] text-ink outline-none focus:border-accent transition-colors" %>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <%= f.label :to, "Au", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+        <%= f.date_field :to,
+              value: Date.current,
+              max: Date.current,
+              class: "bg-transparent border-0 border-b border-rule-strong py-2 font-serif text-[17px] text-ink outline-none focus:border-accent transition-colors" %>
+      </div>
+    </div>
+
+    <%= f.submit "Télécharger",
+          class: "self-start inline-flex items-center gap-2.5 bg-ink text-paper border-0 px-5 py-3 rounded-pill font-sans text-sm font-medium cursor-pointer hover:bg-black transition-colors" %>
+  <% end %>
+</main>

@@ -1,70 +1,81 @@
 <% content_for :title, "Journal du #{@entry.entry_date}" %>
 
-<div class="space-y-6">
-  <header class="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-sm font-medium text-stone-500"><%= @entry.entry_date == Date.current ? "Aujourd'hui" : "Journal" %></p>
-      <h1 class="mt-1 text-3xl font-semibold tracking-normal text-stone-950"><%= l(@entry.entry_date, format: :long) %></h1>
-      <p class="mt-2 text-sm text-stone-600">Modèle LLM configuré : <span class="font-medium text-stone-900"><%= @openrouter_model %></span></p>
+<%
+  is_today = @entry.entry_date == Date.current
+  date_label =
+    if is_today
+      "Aujourd'hui, #{l(@entry.entry_date, format: "%-d %B").downcase}"
+    else
+      l(@entry.entry_date, format: "%A %-d %B %Y").capitalize
+    end
+%>
+
+<main class="mx-auto max-w-content px-7 pt-12 pb-56"
+      data-controller="autosave date-picker"
+      data-autosave-url-value="<%= entry_path(@entry.entry_date.iso8601) %>"
+      data-autosave-delay-value="800"
+      data-autosave-hint-delay-value="5000"
+      data-date-picker-selected-value="<%= @entry.entry_date.iso8601 %>"
+      data-date-picker-entries-value="<%= @entry_dates.to_json %>"
+      data-date-picker-url-template-value="<%= entry_path("__DATE__") %>">
+
+  <div class="relative mb-9 flex items-baseline justify-between gap-4">
+    <button type="button"
+            class="relative cursor-pointer border-0 bg-transparent p-0 text-left text-3xl font-medium leading-tight tracking-tight2 text-ink after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-rule after:transition-transform hover:after:scale-x-[0.18]"
+            data-action="click->date-picker#toggle"
+            data-date-picker-target="trigger">
+      <%= date_label %>
+    </button>
+
+    <span class="inline-flex items-center gap-1.5 font-sans text-xs uppercase tracking-wider text-ink-faint opacity-0 transition-opacity duration-300"
+          data-autosave-target="hint"
+          aria-live="polite">
+      <span class="h-[5px] w-[5px] rounded-full bg-ink-faint"></span>
+      Sauvegardé
+    </span>
+
+    <%= render "date_picker" %>
+  </div>
+
+  <div class="relative">
+    <%= form_with model: @entry,
+          url: entry_path(@entry.entry_date.iso8601),
+          method: :patch,
+          data: { autosave_target: "form" } do |form| %>
+      <%= form.text_area :raw_text,
+            placeholder: is_today ? "Appuie sur le micro et raconte ta journée. Ou écris si tu préfères." : "Rien noté ce jour-là. Tu peux toujours l'ajouter maintenant.",
+            spellcheck: "true",
+            class: "min-h-[50vh] w-full resize-none border-0 bg-transparent pt-1 pb-7 font-serif text-lg leading-[1.7] tracking-tightish text-ink outline-0 placeholder:text-ink-faint placeholder:italic",
+            data: {
+              autosave_target: "input",
+              action: "input->autosave#change"
+            } %>
+    <% end %>
+  </div>
+
+  <div class="mt-4 flex items-center justify-between gap-4 border-t border-rule pt-[18px]">
+    <div class="font-sans text-xs tracking-wide text-ink-faint">
+      <span data-autosave-target="meta"></span>
+      <span class="block pt-1">LLM : <%= @openrouter_model %></span>
     </div>
 
-    <nav class="flex flex-wrap items-center gap-2 text-sm">
-      <%= link_to "Aujourd'hui", root_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-      <%= link_to "Historique", history_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-      <%= link_to "Export", export_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-      <%= button_to "Déconnexion", session_path, method: :delete, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-    </nav>
-  </header>
-
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-    <section class="space-y-4">
-      <%= form_with model: @entry,
-        url: entry_path(@entry.entry_date.iso8601),
-        method: :patch,
-        data: {
-          controller: "autosave voice-recognition",
-          autosave_url_value: entry_path(@entry.entry_date.iso8601)
-        },
-        class: "space-y-3" do |form| %>
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <label for="journal_entry_raw_text" class="text-sm font-semibold text-stone-900">Notes brutes</label>
-          <div class="flex items-center gap-2">
-            <span data-voice-recognition-target="indicator" class="h-2.5 w-2.5 rounded-full bg-stone-300" aria-hidden="true"></span>
-            <button type="button"
-                    data-voice-recognition-target="button"
-                    data-action="voice-recognition#toggle"
-                    class="rounded-md bg-stone-950 px-3 py-2 text-sm font-medium text-white hover:bg-stone-800">
-              Dicter
-            </button>
-          </div>
-        </div>
-
-        <%= form.text_area :raw_text,
-          rows: 18,
-          data: {
-            autosave_target: "field",
-            voice_recognition_target: "textarea",
-            action: "input->autosave#schedule"
-          },
-          class: "block w-full resize-y rounded-md border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200",
-          placeholder: "Dicte ou écris ce qui se passe dans ta journée..." %>
-
-        <%= render "autosave_status", saved_at: @entry.updated_at %>
-      <% end %>
-    </section>
-
-    <aside class="space-y-4">
-      <div class="rounded-md border border-stone-200 bg-white p-4 shadow-sm">
-        <h2 class="text-sm font-semibold text-stone-900">Analyse</h2>
-        <p class="mt-2 text-sm leading-6 text-stone-600">L'appel LLM organise tes notes en résumé et extrait les repas. Un échec ne remplace pas l'ancien résultat.</p>
-        <%= button_to "Envoyer au LLM",
-          process_with_llm_entry_path(@entry.entry_date.iso8601),
+    <%= button_to process_with_llm_entry_path(@entry.entry_date.iso8601),
           method: :post,
-          form: { data: { turbo_stream: true }, class: "mt-4" },
-          class: "w-full rounded-md bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-600" %>
-      </div>
-
-      <%= render "summary", entry: @entry %>
-    </aside>
+          form: { data: { turbo_stream: true } },
+          class: ("inline-flex cursor-pointer items-center gap-2 rounded-pill px-4 py-2 font-sans text-[13.5px] font-medium transition-colors " +
+                  (@entry.raw_text.present? && @entry.needs_processing? ?
+                    "border border-ink bg-ink text-paper hover:bg-black" :
+                    "border border-rule-strong bg-transparent text-ink-mute hover:border-ink-mute hover:text-ink") +
+                  (@entry.raw_text.present? ? "" : " cursor-not-allowed opacity-45")),
+          disabled: @entry.raw_text.blank? do %>
+      <%= @entry.processed? && !@entry.needs_processing? ? "Régénérer le résumé" : "Envoyer au résumé" %>
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    <% end %>
   </div>
-</div>
+
+  <%= render "summary", entry: @entry %>
+
+  <%= render "mic_button" %>
+</main>

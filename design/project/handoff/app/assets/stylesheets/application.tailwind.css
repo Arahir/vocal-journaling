@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Sélection : tinte douce avec l'accent.
+─────────────────────────────────────────────────────────────── */
+@layer base {
+  ::selection { background: theme('colors.accent.soft'); }
+
+  /* Désactive le noir pur — l'app n'utilise jamais #000 sauf hover */
+  html { color-scheme: light only; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Bouton micro — états visuels.
+   Pilotés par [data-mic-state] depuis mic_controller.js.
+─────────────────────────────────────────────────────────────── */
+@layer components {
+  .mic {
+    @apply relative inline-flex items-center justify-center
+           w-16 h-16 rounded-full
+           border border-rule-strong bg-paper text-ink
+           shadow-mic transition-all duration-150 ease-out cursor-pointer;
+  }
+  .mic:hover {
+    @apply -translate-y-px shadow-mic-hover;
+  }
+  .mic:active { @apply translate-y-0; }
+
+  /* Idle : affiche micro, cache stop */
+  .mic[data-mic-state="idle"] .mic-icon-stop { display: none; }
+  .mic[data-mic-state="idle"] .mic-icon-idle { display: block; }
+
+  /* Listening : fond accent + halo pulsé subtil */
+  .mic[data-mic-state="listening"] {
+    @apply bg-accent border-accent text-white;
+  }
+  .mic[data-mic-state="listening"] .mic-icon-idle { display: none; }
+  .mic[data-mic-state="listening"] .mic-icon-stop { display: block; }
+
+  .mic[data-mic-state="listening"]::before,
+  .mic[data-mic-state="listening"]::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    border: 1.5px solid theme('colors.accent.DEFAULT');
+    opacity: 0;
+    pointer-events: none;
+    animation: mic-pulse 2.4s ease-out infinite;
+  }
+  .mic[data-mic-state="listening"]::after { animation-delay: 1.2s; }
+
+  /* Unsupported : grisé, curseur not-allowed, tooltip révélé */
+  .mic[data-mic-state="unsupported"] {
+    @apply opacity-45 cursor-not-allowed hover:translate-y-0 hover:shadow-mic;
+  }
+  .mic[data-mic-state="unsupported"]:hover + [data-mic-target="tooltip"],
+  .mic[data-mic-state="unsupported"]:focus + [data-mic-target="tooltip"] {
+    display: block;
+  }
+
+  /* Live hint révélé pendant l'écoute (via .is-listening sur le contrôleur) */
+  [data-controller~="mic"].is-listening [data-mic-target="liveHint"] {
+    display: inline-flex;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Date picker — cellules calendrier (rendues en JS).
+─────────────────────────────────────────────────────────────── */
+@layer components {
+  .picker-dow {
+    @apply font-sans text-[10.5px] text-ink-faint text-center tracking-wider pb-1.5;
+  }
+  .picker-day {
+    @apply aspect-square rounded-md font-sans text-[12.5px] text-ink-soft
+           inline-flex items-center justify-center cursor-pointer relative
+           bg-transparent border-0 hover:bg-accent-soft hover:text-ink;
+  }
+  .picker-day.is-dim     { @apply text-ink-faint; }
+  .picker-day.is-today   { @apply text-accent font-semibold; }
+  .picker-day.is-selected{ @apply bg-accent text-white; }
+  .picker-day.has-entry::after {
+    content: '';
+    position: absolute;
+    bottom: 3px; left: 50%;
+    width: 3px; height: 3px;
+    border-radius: 9999px;
+    background: theme('colors.accent.DEFAULT');
+    transform: translateX(-50%);
+  }
+  .picker-day.is-selected.has-entry::after { background: rgba(255,255,255,0.85); }
+  .picker-day:disabled   { @apply opacity-25 cursor-not-allowed; }
+}

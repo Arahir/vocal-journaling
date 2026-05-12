@@ -1,30 +1,36 @@
 <% content_for :title, "Export repas" %>
 
-<div class="space-y-6">
-  <header class="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-sm font-medium text-stone-500">Repas</p>
-      <h1 class="mt-1 text-3xl font-semibold tracking-normal text-stone-950">Export Markdown</h1>
-    </div>
-    <nav class="flex flex-wrap gap-2 text-sm">
-      <%= link_to "Aujourd'hui", root_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-      <%= link_to "Historique", history_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
-    </nav>
-  </header>
+<main class="mx-auto max-w-content px-7 pt-12 pb-32">
+  <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Exporter les repas</h1>
+  <p class="mb-9 max-w-[480px] font-sans text-sm leading-relaxed text-ink-mute">
+    Télécharge un fichier Markdown récapitulant les repas sur la période choisie.
+  </p>
 
-  <%= form_with url: export_path, class: "max-w-xl rounded-md border border-stone-200 bg-white p-4 shadow-sm" do |form| %>
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div>
-        <%= form.label :from, "Du", class: "text-sm font-medium text-stone-700" %>
-        <%= form.date_field :from, value: @from, required: true, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+  <%= form_with url: export_path,
+        method: :post,
+        data: { turbo: false },
+        class: "flex max-w-[460px] flex-col gap-5" do |form| %>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1.5">
+        <%= form.label :from, "Du", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+        <%= form.date_field :from,
+              value: @from,
+              max: Date.current,
+              required: true,
+              class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
       </div>
 
-      <div>
-        <%= form.label :to, "Au", class: "text-sm font-medium text-stone-700" %>
-        <%= form.date_field :to, value: @to, required: true, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+      <div class="flex flex-col gap-1.5">
+        <%= form.label :to, "Au", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+        <%= form.date_field :to,
+              value: @to,
+              max: Date.current,
+              required: true,
+              class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
       </div>
     </div>
 
-    <%= form.submit "Télécharger le Markdown", class: "mt-5 rounded-md bg-stone-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-stone-800" %>
+    <%= form.submit "Télécharger",
+          class: "self-start inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
   <% end %>
-</div>
+</main>

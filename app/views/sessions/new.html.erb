@@ -1,23 +1,36 @@
 <% content_for :title, "Connexion" %>
 
-<div class="mx-auto w-full max-w-md">
-  <h1 class="text-2xl font-semibold tracking-normal text-stone-950">Connexion</h1>
-  <p class="mt-2 text-sm text-stone-600">Accède à ton journal vocal local.</p>
+<main class="mx-auto max-w-reading px-7 pt-16 pb-32">
+  <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Connexion</h1>
+  <p class="mb-9 max-w-[440px] font-sans text-sm leading-relaxed text-ink-mute">
+    Accède à ton carnet vocal local.
+  </p>
 
-  <%= form_with url: session_url, class: "mt-8 space-y-5" do |form| %>
-    <div>
-      <%= form.label :email_address, "Email", class: "text-sm font-medium text-stone-700" %>
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+  <%= form_with url: session_url, class: "flex max-w-[460px] flex-col gap-5" do |form| %>
+    <div class="flex flex-col gap-1.5">
+      <%= form.label :email_address, "Email", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <%= form.email_field :email_address,
+            required: true,
+            autofocus: true,
+            autocomplete: "username",
+            value: params[:email_address],
+            class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
     </div>
 
-    <div>
-      <%= form.label :password, "Mot de passe", class: "text-sm font-medium text-stone-700" %>
-      <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+    <div class="flex flex-col gap-1.5">
+      <%= form.label :password, "Mot de passe", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <%= form.password_field :password,
+            required: true,
+            autocomplete: "current-password",
+            maxlength: 72,
+            class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
     </div>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <%= form.submit "Se connecter", class: "inline-flex cursor-pointer justify-center rounded-md bg-stone-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-stone-800" %>
-      <%= link_to "Créer un compte", new_registration_path, class: "text-sm font-medium text-stone-700 underline underline-offset-4 hover:text-stone-950" %>
+    <div class="mt-2 flex flex-wrap items-center gap-4">
+      <%= form.submit "Se connecter",
+            class: "inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
+      <%= link_to "Créer un compte", new_registration_path, class: "font-sans text-sm text-ink-mute underline decoration-rule-strong underline-offset-4 hover:text-ink" %>
+      <%= link_to "Mot de passe oublié", new_password_path, class: "font-sans text-sm text-ink-mute underline decoration-transparent underline-offset-4 hover:text-ink hover:decoration-rule-strong" %>
     </div>
   <% end %>
-</div>
+</main>

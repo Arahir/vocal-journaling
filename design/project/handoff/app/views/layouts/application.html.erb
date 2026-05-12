@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <title><%= content_for(:title) || "Carnet" %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%# Google Fonts — Newsreader (body) + Inter (UI) + JetBrains Mono (export only) %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-paper text-ink font-serif text-lg antialiased">
+    <header class="mx-auto max-w-content px-7 pt-7 flex items-baseline justify-between gap-6">
+      <%= link_to root_path, class: "inline-flex items-baseline gap-2 text-[17px] font-medium text-ink no-underline tracking-tightish" do %>
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-accent -translate-y-px"></span>
+        Carnet
+      <% end %>
+
+      <nav class="flex gap-6 font-sans text-sm text-ink-mute">
+        <% nav_link = ->(label, path, active) {
+             cls = "no-underline transition-colors border-b pb-0.5 " +
+                   (active ? "text-ink border-accent" : "border-transparent hover:text-ink")
+             link_to(label, path, class: cls)
+           } %>
+        <%= nav_link.("Aujourd'hui", entry_path(Date.current), controller_name == "entries") %>
+        <%= nav_link.("Historique",  history_path,            controller_name == "history") %>
+        <%= nav_link.("Export",      export_path,             controller_name == "exports") %>
+      </nav>
+    </header>
+
+    <%= yield %>
+  </body>
+</html>

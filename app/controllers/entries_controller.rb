@@ -7,13 +7,14 @@ class EntriesController < ApplicationController
 
   def show
     @openrouter_model = OpenRouterClient.model
+    @entry_dates = Current.user.journal_entries.order(:entry_date).pluck(:entry_date).map(&:iso8601)
   end
 
   def update
     if @entry.update(entry_params)
       @saved_at = Time.current
       respond_to do |format|
-        format.turbo_stream
+        format.turbo_stream { head :no_content }
         format.json { render json: { saved_at: I18n.l(@saved_at, format: :short) } }
         format.html { redirect_to entry_path(@entry.entry_date) }
       end

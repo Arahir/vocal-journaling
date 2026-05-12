@@ -12,6 +12,10 @@ class JournalEntry < ApplicationRecord
     processed_at.present?
   end
 
+  def needs_processing?
+    raw_text.present? && (processed_at.blank? || updated_at > processed_at)
+  end
+
   def summary_excerpt
     return "Non traitée" if summary.blank?
 

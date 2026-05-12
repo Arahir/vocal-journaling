@@ -1,0 +1,19 @@
+<%# Popover calendrier — caché par défaut, ouvert via date_picker_controller. %>
+<%# Le rendu détaillé du grid jour-par-jour est fait en JS pour rester léger côté ERB. %>
+
+<div class="hidden absolute top-full left-0 mt-3.5 z-50 w-[280px]
+            bg-paper border border-rule-strong rounded-[10px] p-3.5
+            shadow-popover font-sans text-[13px]"
+     data-date-picker-target="popover"
+     data-action="click@window->date-picker#clickOutside">
+  <div class="flex justify-between items-center mb-2.5 text-ink-soft font-medium">
+    <button type="button" class="w-6 h-6 rounded-md text-ink-mute hover:bg-accent-soft hover:text-ink"
+            data-action="date-picker#prevMonth" aria-label="Mois précédent">‹</button>
+    <span class="capitalize" data-date-picker-target="monthLabel"></span>
+    <button type="button" class="w-6 h-6 rounded-md text-ink-mute hover:bg-accent-soft hover:text-ink"
+            data-action="date-picker#nextMonth" aria-label="Mois suivant">›</button>
+  </div>
+  <div class="grid grid-cols-7 gap-[2px]" data-date-picker-target="grid">
+    <%# rempli en JS — entêtes L M M J V S D + cellules .picker-day %>
+  </div>
+</div>

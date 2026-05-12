@@ -1,0 +1,88 @@
+<%# /entries/:date — vue principale, 90% du temps passé dans l'app. %>
+<%# @entry est créé à la volée par le controller si absent. %>
+
+<%
+  is_today = @entry.date == Date.current
+  date_label =
+    if is_today
+      "Aujourd'hui, #{l(@entry.date, format: '%-d %B').downcase}"
+    else
+      l(@entry.date, format: '%A %-d %B %Y').capitalize
+    end
+%>
+
+<main class="mx-auto max-w-content px-7 pt-12 pb-56"
+      data-controller="autosave date-picker"
+      data-autosave-url-value="<%= entry_path(@entry.date) %>"
+      data-autosave-delay-value="800"
+      data-autosave-hint-delay-value="5000">
+
+  <%# ── Date heading + save indicator ─────────────────────────────── %>
+  <div class="flex items-baseline justify-between gap-4 mb-9 relative">
+    <button type="button"
+            class="text-3xl font-medium tracking-tight2 leading-tight text-ink bg-transparent border-0 p-0 cursor-pointer relative
+                   after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-px after:bg-rule
+                   after:origin-left after:scale-x-0 hover:after:scale-x-[0.18] after:transition-transform"
+            data-action="click->date-picker#toggle"
+            data-date-picker-target="trigger">
+      <%= date_label %>
+    </button>
+
+    <span class="font-sans text-xs text-ink-faint uppercase tracking-wider opacity-0 transition-opacity duration-300 inline-flex items-center gap-1.5"
+          data-autosave-target="hint"
+          aria-live="polite">
+      <span class="w-[5px] h-[5px] rounded-full bg-ink-faint"></span>
+      Sauvegardé
+    </span>
+
+    <%# Popover calendrier — rendu inline, masqué par défaut %>
+    <%= render 'date_picker' %>
+  </div>
+
+  <%# ── Editor ──────────────────────────────────────────────────── %>
+  <div class="relative">
+    <%= form_with url: entry_path(@entry.date), method: :patch, local: false,
+                  data: { autosave_target: "form" } do |f| %>
+      <%= f.text_area :raw_text,
+            value: @entry.raw_text,
+            placeholder: is_today ? "Appuie sur le micro et raconte ta journée. Ou écris si tu préfères." : "Rien noté ce jour-là. Tu peux toujours l'ajouter maintenant.",
+            spellcheck: "true",
+            class: "w-full min-h-[50vh] border-0 outline-0 bg-transparent font-serif text-lg leading-[1.7] text-ink resize-none pt-1 pb-7 tracking-tightish placeholder:text-ink-faint placeholder:italic",
+            data: {
+              autosave_target: "input",
+              action: "input->autosave#change"
+            } %>
+    <% end %>
+  </div>
+
+  <%# ── Action row ──────────────────────────────────────────────── %>
+  <div class="flex items-center justify-between gap-4 mt-4 pt-[18px] border-t border-rule">
+    <span class="font-sans text-xs text-ink-faint tracking-wide"
+          data-autosave-target="meta">
+      <%# Compteur de mots + état traitement, rempli par autosave_controller. %>
+    </span>
+
+    <%= button_to process_entry_path(@entry.date),
+          method: :post,
+          form: { data: { turbo_frame: "summary" } },
+          class: ("inline-flex items-center gap-2 font-sans text-[13.5px] font-medium px-4 py-2 rounded-pill cursor-pointer transition-colors " +
+                  (@entry.raw_text.present? && @entry.needs_processing? ?
+                    "bg-ink text-paper border border-ink hover:bg-black" :
+                    "bg-transparent text-ink-mute border border-rule-strong hover:text-ink hover:border-ink-mute") +
+                  (@entry.raw_text.present? ? "" : " opacity-45 cursor-not-allowed")),
+          disabled: @entry.raw_text.blank? do %>
+      <%= @entry.processed_at? && !@entry.needs_processing? ? "Régénérer le résumé" : "Envoyer au résumé" %>
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    <% end %>
+  </div>
+
+  <%# ── Summary (Turbo Frame, mis à jour après POST /process) ────── %>
+  <%= turbo_frame_tag "summary" do %>
+    <%= render "summary", entry: @entry %>
+  <% end %>
+
+  <%# ── Mic button (fixed, anchored to viewport) ─────────────────── %>
+  <%= render "mic_button" %>
+</main>

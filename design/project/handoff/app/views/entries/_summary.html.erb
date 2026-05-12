@@ -1,0 +1,31 @@
+<%# Partial rendu dans le Turbo Frame #summary. %>
+<%# Vide tant que l'entrée n'a pas été traitée — pas de placeholder visible. %>
+
+<% return unless entry.summary.present? %>
+
+<section class="mt-14 animate-fade-in-up">
+  <div class="font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint mb-3.5 flex items-center gap-2.5
+              after:flex-1 after:h-px after:bg-rule after:content-['']">
+    Résumé
+  </div>
+
+  <p class="font-serif text-[16.5px] leading-[1.7] text-ink-soft italic mb-7"><%= entry.summary %></p>
+
+  <% if entry.meals.any? %>
+    <div class="flex flex-col">
+      <% entry.meals.each do |meal| %>
+        <div class="grid grid-cols-[96px_1fr] gap-6 py-3.5 border-t border-rule items-baseline last:border-b">
+          <div class="font-sans text-xs font-medium tracking-wide text-ink-mute lowercase">
+            <%= meal.meal_type %>
+          </div>
+          <div>
+            <div class="font-serif text-base leading-[1.55] text-ink"><%= meal.content %></div>
+            <% if meal.time_of_day.present? %>
+              <div class="font-sans text-[11px] text-ink-faint mt-1 tracking-wide"><%= meal.time_of_day %></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

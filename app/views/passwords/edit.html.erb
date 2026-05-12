@@ -1,21 +1,31 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
+<% content_for :title, "Nouveau mot de passe" %>
+
+<main class="mx-auto max-w-reading px-7 pt-16 pb-32">
+  <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Nouveau mot de passe</h1>
+  <p class="mb-9 max-w-[460px] font-sans text-sm leading-relaxed text-ink-mute">
+    Choisis un nouveau mot de passe pour ton carnet.
+  </p>
+
+  <%= form_with url: password_path(params[:token]), method: :put, class: "flex max-w-[460px] flex-col gap-5" do |form| %>
+    <div class="flex flex-col gap-1.5">
+      <%= form.label :password, "Mot de passe", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <%= form.password_field :password,
+            required: true,
+            autocomplete: "new-password",
+            maxlength: 72,
+            class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <%= form.label :password_confirmation, "Confirmation", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <%= form.password_field :password_confirmation,
+            required: true,
+            autocomplete: "new-password",
+            maxlength: 72,
+            class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
+    </div>
+
+    <%= form.submit "Enregistrer",
+          class: "mt-2 self-start inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
   <% end %>
-
-  <h1 class="font-bold text-4xl">Update your password</h1>
-
-  <%= form_with url: password_path(params[:token]), method: :put, class: "contents" do |form| %>
-    <div class="my-5">
-      <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-    </div>
-
-    <div class="my-5">
-      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72, class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
-    </div>
-
-    <div class="inline">
-      <%= form.submit "Save", class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
-    </div>
-  <% end %>
-</div>
+</main>

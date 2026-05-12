@@ -1,17 +1,26 @@
-<div class="mx-auto md:w-2/3 w-full">
-  <% if alert = flash[:alert] %>
-    <p class="py-2 px-3 bg-red-50 mb-5 text-red-500 font-medium rounded-lg inline-block" id="alert"><%= alert %></p>
-  <% end %>
+<% content_for :title, "Réinitialiser le mot de passe" %>
 
-  <h1 class="font-bold text-4xl">Forgot your password?</h1>
+<main class="mx-auto max-w-reading px-7 pt-16 pb-32">
+  <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Mot de passe oublié</h1>
+  <p class="mb-9 max-w-[460px] font-sans text-sm leading-relaxed text-ink-mute">
+    Reçois un lien de réinitialisation sur ton adresse email.
+  </p>
 
-  <%= form_with url: passwords_path, class: "contents" do |form| %>
-    <div class="my-5">
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address], class: "block shadow-sm rounded-md border border-gray-400 focus:outline-solid focus:outline-blue-600 px-3 py-2 mt-2 w-full" %>
+  <%= form_with url: passwords_path, class: "flex max-w-[460px] flex-col gap-5" do |form| %>
+    <div class="flex flex-col gap-1.5">
+      <%= form.label :email_address, "Email", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <%= form.email_field :email_address,
+            required: true,
+            autofocus: true,
+            autocomplete: "username",
+            value: params[:email_address],
+            class: "border-0 border-b border-rule-strong bg-transparent py-2 font-serif text-[17px] text-ink outline-none transition-colors focus:border-accent" %>
     </div>
 
-    <div class="inline">
-      <%= form.submit "Email reset instructions", class: "w-full sm:w-auto text-center rounded-lg px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <div class="mt-2 flex flex-wrap items-center gap-4">
+      <%= form.submit "Envoyer le lien",
+            class: "inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
+      <%= link_to "Retour connexion", new_session_path, class: "font-sans text-sm text-ink-mute underline decoration-rule-strong underline-offset-4 hover:text-ink" %>
     </div>
   <% end %>
-</div>
+</main>

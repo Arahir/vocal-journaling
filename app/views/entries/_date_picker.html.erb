@@ -1,0 +1,17 @@
+<div class="absolute top-full left-0 z-50 mt-3.5 hidden w-[280px] rounded-[10px] border border-rule-strong bg-paper p-3.5 font-sans text-[13px] shadow-popover"
+     data-date-picker-target="popover"
+     data-action="click@window->date-picker#clickOutside">
+  <div class="mb-2.5 flex items-center justify-between font-medium text-ink-soft">
+    <button type="button"
+            class="h-6 w-6 rounded-md text-ink-mute hover:bg-accent-soft hover:text-ink"
+            data-action="date-picker#prevMonth"
+            aria-label="Mois précédent">‹</button>
+    <span class="capitalize" data-date-picker-target="monthLabel"></span>
+    <button type="button"
+            class="h-6 w-6 rounded-md text-ink-mute hover:bg-accent-soft hover:text-ink"
+            data-action="date-picker#nextMonth"
+            aria-label="Mois suivant">›</button>
+  </div>
+
+  <div class="grid grid-cols-7 gap-[2px]" data-date-picker-target="grid"></div>
+</div>

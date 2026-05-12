@@ -1,0 +1,11 @@
+# Repas du <%= from %> au <%= to %>
+
+<% entries.each do |entry| %>
+<% meals = entry.meals.sort_by { |meal| [Meal.meal_types.fetch(meal.meal_type), meal.created_at || Time.zone.at(0)] } %>
+<% next if meals.empty? %>
+## <%= entry.entry_date %>
+<% meals.each do |meal| %>
+- **<%= Meal.french_label(meal.meal_type) %>** : <%= meal.description %>
+<% end %>
+
+<% end %>

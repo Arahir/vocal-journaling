@@ -1,0 +1,25 @@
+fr:
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      long: "%A %d %B %Y"
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d/%m %H:%M"
+      time: "%H:%M"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "La validation a échoué : %{errors}"
+        taken: "est déjà utilisé"
+        blank: "doit être rempli"
+      models:
+        user:
+          attributes:
+            password:
+              blank: "doit être rempli"
+        meal:
+          attributes:
+            meal_type:
+              taken: "existe déjà pour cette journée"

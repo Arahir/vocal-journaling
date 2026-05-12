@@ -1,0 +1,34 @@
+<% content_for :title, "Créer un compte" %>
+
+<div class="mx-auto w-full max-w-md">
+  <h1 class="text-2xl font-semibold tracking-normal text-stone-950">Créer un compte</h1>
+  <p class="mt-2 text-sm text-stone-600">Chaque compte garde ses journées, résumés et exports séparés.</p>
+
+  <%= form_with model: @user, url: registration_path, class: "mt-8 space-y-5" do |form| %>
+    <% if @user.errors.any? %>
+      <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <%= @user.errors.full_messages.to_sentence %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :email_address, "Email", class: "text-sm font-medium text-stone-700" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+    </div>
+
+    <div>
+      <%= form.label :password, "Mot de passe", class: "text-sm font-medium text-stone-700" %>
+      <%= form.password_field :password, required: true, autocomplete: "new-password", maxlength: 72, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+    </div>
+
+    <div>
+      <%= form.label :password_confirmation, "Confirmation", class: "text-sm font-medium text-stone-700" %>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <%= form.submit "Créer le compte", class: "inline-flex cursor-pointer justify-center rounded-md bg-stone-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-stone-800" %>
+      <%= link_to "Déjà un compte", new_session_path, class: "text-sm font-medium text-stone-700 underline underline-offset-4 hover:text-stone-950" %>
+    </div>
+  <% end %>
+</div>

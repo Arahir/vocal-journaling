@@ -1,0 +1,30 @@
+<% content_for :title, "Export repas" %>
+
+<div class="space-y-6">
+  <header class="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-stone-500">Repas</p>
+      <h1 class="mt-1 text-3xl font-semibold tracking-normal text-stone-950">Export Markdown</h1>
+    </div>
+    <nav class="flex flex-wrap gap-2 text-sm">
+      <%= link_to "Aujourd'hui", root_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+      <%= link_to "Historique", history_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+    </nav>
+  </header>
+
+  <%= form_with url: export_path, class: "max-w-xl rounded-md border border-stone-200 bg-white p-4 shadow-sm" do |form| %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.label :from, "Du", class: "text-sm font-medium text-stone-700" %>
+        <%= form.date_field :from, value: @from, required: true, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+      </div>
+
+      <div>
+        <%= form.label :to, "Au", class: "text-sm font-medium text-stone-700" %>
+        <%= form.date_field :to, value: @to, required: true, class: "mt-2 block w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200" %>
+      </div>
+    </div>
+
+    <%= form.submit "Télécharger le Markdown", class: "mt-5 rounded-md bg-stone-950 px-4 py-2.5 text-sm font-medium text-white hover:bg-stone-800" %>
+  <% end %>
+</div>

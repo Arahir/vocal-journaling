@@ -1,0 +1,70 @@
+<% content_for :title, "Journal du #{@entry.entry_date}" %>
+
+<div class="space-y-6">
+  <header class="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-stone-500"><%= @entry.entry_date == Date.current ? "Aujourd'hui" : "Journal" %></p>
+      <h1 class="mt-1 text-3xl font-semibold tracking-normal text-stone-950"><%= l(@entry.entry_date, format: :long) %></h1>
+      <p class="mt-2 text-sm text-stone-600">Modèle LLM configuré : <span class="font-medium text-stone-900"><%= @openrouter_model %></span></p>
+    </div>
+
+    <nav class="flex flex-wrap items-center gap-2 text-sm">
+      <%= link_to "Aujourd'hui", root_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+      <%= link_to "Historique", history_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+      <%= link_to "Export", export_path, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+      <%= button_to "Déconnexion", session_path, method: :delete, class: "rounded-md border border-stone-300 px-3 py-2 font-medium text-stone-700 hover:bg-white" %>
+    </nav>
+  </header>
+
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <section class="space-y-4">
+      <%= form_with model: @entry,
+        url: entry_path(@entry.entry_date.iso8601),
+        method: :patch,
+        data: {
+          controller: "autosave voice-recognition",
+          autosave_url_value: entry_path(@entry.entry_date.iso8601)
+        },
+        class: "space-y-3" do |form| %>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label for="journal_entry_raw_text" class="text-sm font-semibold text-stone-900">Notes brutes</label>
+          <div class="flex items-center gap-2">
+            <span data-voice-recognition-target="indicator" class="h-2.5 w-2.5 rounded-full bg-stone-300" aria-hidden="true"></span>
+            <button type="button"
+                    data-voice-recognition-target="button"
+                    data-action="voice-recognition#toggle"
+                    class="rounded-md bg-stone-950 px-3 py-2 text-sm font-medium text-white hover:bg-stone-800">
+              Dicter
+            </button>
+          </div>
+        </div>
+
+        <%= form.text_area :raw_text,
+          rows: 18,
+          data: {
+            autosave_target: "field",
+            voice_recognition_target: "textarea",
+            action: "input->autosave#schedule"
+          },
+          class: "block w-full resize-y rounded-md border border-stone-300 bg-white px-4 py-3 text-base leading-7 text-stone-950 shadow-sm outline-none focus:border-stone-900 focus:ring-2 focus:ring-stone-200",
+          placeholder: "Dicte ou écris ce qui se passe dans ta journée..." %>
+
+        <%= render "autosave_status", saved_at: @entry.updated_at %>
+      <% end %>
+    </section>
+
+    <aside class="space-y-4">
+      <div class="rounded-md border border-stone-200 bg-white p-4 shadow-sm">
+        <h2 class="text-sm font-semibold text-stone-900">Analyse</h2>
+        <p class="mt-2 text-sm leading-6 text-stone-600">L'appel LLM organise tes notes en résumé et extrait les repas. Un échec ne remplace pas l'ancien résultat.</p>
+        <%= button_to "Envoyer au LLM",
+          process_with_llm_entry_path(@entry.entry_date.iso8601),
+          method: :post,
+          form: { data: { turbo_stream: true }, class: "mt-4" },
+          class: "w-full rounded-md bg-emerald-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-emerald-600" %>
+      </div>
+
+      <%= render "summary", entry: @entry %>
+    </aside>
+  </div>
+</div>

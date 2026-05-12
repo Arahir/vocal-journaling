@@ -1,0 +1,2 @@
+<%= turbo_stream.replace "flash", partial: "shared/flash" %>
+<%= turbo_stream.replace "summary", partial: "entries/summary", locals: { entry: @entry } %>

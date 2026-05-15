@@ -44,7 +44,7 @@ class OpenRouterClient
   end
 
   def parse_content(content)
-    parsed = JSON.parse(content, symbolize_names: true)
+    parsed = JSON.parse(analysis_json_payload(content), symbolize_names: true)
 
     {
       summary: parsed[:summary].to_s.strip,
@@ -118,6 +118,16 @@ class OpenRouterClient
       ENV.fetch("OPENROUTER_TIMEOUT", 30).to_i
     end
 
+    def analysis_json_payload(content)
+      raw = content.to_s.strip
+
+      if raw.start_with?("```")
+        raw = raw.sub(/\A```(?:json)?\s*/i, "").sub(/\s*```\z/, "").strip
+      end
+
+      raw
+    end
+
     def normalize_meals(meals)
       seen_primary = {}
 
@@ -142,7 +152,8 @@ class OpenRouterClient
     Tu reçois le texte brut d'une journée de journaling alimentaire et émotionnel
     d'un utilisateur francophone. Ton rôle est de l'organiser.
 
-    Retourne UNIQUEMENT un JSON valide, sans markdown, sans texte hors JSON,
+    Retourne UNIQUEMENT un JSON valide, sans markdown, sans bloc ```json,
+    sans texte hors JSON,
     suivant exactement ce schéma :
 
     {

@@ -24,6 +24,22 @@ class OpenRouterClientTest < ActiveSupport::TestCase
     ], result[:meals]
   end
 
+  test "accepts analysis JSON wrapped in a markdown code fence" do
+    content = <<~CONTENT
+      ```json
+      {
+        "summary": "Tu as testé la dictée.",
+        "meals": []
+      }
+      ```
+    CONTENT
+
+    result = OpenRouterClient.new.parse_content(content)
+
+    assert_equal "Tu as testé la dictée.", result[:summary]
+    assert_empty result[:meals]
+  end
+
   test "parses transcription response" do
     result = OpenRouterClient.new.parse_transcription_response({
       text: " Bonjour le carnet. ",

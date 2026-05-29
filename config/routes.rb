@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     end
   end
 
+  get "pomodoro", to: "pomodoros#index"
   get "history", to: "history#index"
   get "export", to: "exports#new"
   post "export", to: "exports#create"

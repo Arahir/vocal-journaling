@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_12_085453) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_29_130000) do
   create_table "journal_entries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "entry_date", null: false
@@ -42,6 +42,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_085453) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "todos", force: :cascade do |t|
+    t.boolean "completed", default: false, null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.integer "position", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "position"], name: "index_todos_on_user_id_and_position"
+    t.index ["user_id"], name: "index_todos_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -53,4 +64,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_085453) do
   add_foreign_key "journal_entries", "users"
   add_foreign_key "meals", "journal_entries"
   add_foreign_key "sessions", "users"
+  add_foreign_key "todos", "users"
 end

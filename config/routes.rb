@@ -12,6 +12,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :todos, only: %i[index create update destroy] do
+    collection do
+      patch :reorder
+    end
+  end
+
   get "history", to: "history#index"
   get "export", to: "exports#new"
   post "export", to: "exports#create"

@@ -1,0 +1,16 @@
+<% content_for :title, "Tâches" %>
+
+<main class="mx-auto max-w-content px-7 pt-12 pb-56">
+  <div class="mb-9 flex items-baseline justify-between gap-4">
+    <h1 class="text-3xl font-medium leading-tight tracking-tight2 text-ink">Tâches</h1>
+    <span class="font-sans text-xs uppercase tracking-wider text-ink-faint">
+      <%= @todos.count(&:completed) %>/<%= @todos.size %> faites
+    </span>
+  </div>
+
+  <%= render "form" %>
+
+  <%= render "list", todos: @todos %>
+
+  <%= render "entries/mic_button" %>
+</main>

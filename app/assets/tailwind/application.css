@@ -69,6 +69,10 @@
 }
 
 @layer components {
+  .is-dragging {
+    @apply rounded-md bg-accent-soft opacity-40;
+  }
+
   .mic {
     @apply relative inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-rule-strong bg-paper text-ink shadow-mic transition-all duration-150 ease-out;
   }

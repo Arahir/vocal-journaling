@@ -27,6 +27,13 @@ class OpenRouterClient
     parse_content(content)
   end
 
+  def extract_tasks(raw_text)
+    return [] if raw_text.blank?
+
+    content = request_task_extraction(raw_text)
+    parse_tasks(content)
+  end
+
   def transcribe_audio(data:, format:, language: "fr")
     raise Error, "Audio vide" if data.blank?
     raise Error, "Format audio manquant" if format.blank?
@@ -54,6 +61,17 @@ class OpenRouterClient
     raise Error, "Réponse JSON invalide: #{e.message}"
   end
 
+  def parse_tasks(content)
+    parsed = JSON.parse(analysis_json_payload(content), symbolize_names: true)
+
+    Array(parsed[:tasks]).filter_map do |task|
+      label = task.is_a?(Hash) ? task[:content].to_s : task.to_s
+      label.squish.presence
+    end
+  rescue JSON::ParserError => e
+    raise Error, "Réponse JSON invalide: #{e.message}"
+  end
+
   def parse_transcription_response(body)
     parsed = JSON.parse(body)
     text = parsed["text"].to_s.strip
@@ -74,6 +92,22 @@ class OpenRouterClient
         model: self.class.model,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: raw_text }
+        ],
+        response_format: { type: "json_object" }
+      })
+
+      JSON.parse(response_body).dig("choices", 0, "message", "content").presence ||
+        raise(Error, "Réponse OpenRouter sans contenu")
+    rescue JSON::ParserError => e
+      raise Error, "Réponse OpenRouter invalide: #{e.message}"
+    end
+
+    def request_task_extraction(raw_text)
+      response_body = post_json(CHAT_ENDPOINT, {
+        model: self.class.model,
+        messages: [
+          { role: "system", content: TASK_SYSTEM_PROMPT },
           { role: "user", content: raw_text }
         ],
         response_format: { type: "json_object" }
@@ -171,5 +205,23 @@ class OpenRouterClient
     Si aucun repas n'est mentionné, retourne "meals": [].
     Si le texte est trop vague pour un résumé, retourne "summary": "".
     Ne retourne pas plusieurs breakfast, lunch ou dinner. Tu peux retourner plusieurs snack.
+  PROMPT
+
+  TASK_SYSTEM_PROMPT = <<~PROMPT.freeze
+    Tu reçois le texte brut, dicté à voix haute, d'un utilisateur francophone qui
+    énumère des choses à faire. Ton rôle est d'en extraire une liste de tâches.
+
+    Retourne UNIQUEMENT un JSON valide, sans markdown, sans bloc ```json,
+    sans texte hors JSON, suivant exactement ce schéma :
+
+    {
+      "tasks": [
+        "libellé court et clair de la tâche, à l'impératif, 1 ligne max"
+      ]
+    }
+
+    Découpe le texte en tâches distinctes : une entrée par action à réaliser.
+    Reformule chaque tâche de façon concise et actionnable, sans les numéroter.
+    N'invente aucune tâche. Si aucune tâche n'est mentionnée, retourne "tasks": [].
   PROMPT
 end

@@ -46,6 +46,7 @@
                link_to(label, path, class: classes)
              end %>
           <%= nav_link.call("Aujourd'hui", entry_path(Date.current.iso8601), controller_name == "entries") %>
+          <%= nav_link.call("Tâches", todos_path, controller_name == "todos") %>
           <%= nav_link.call("Historique", history_path, controller_name == "history") %>
           <%= nav_link.call("Export", export_path, controller_name == "exports") %>
           <%= button_to "Sortir", session_path, method: :delete, form: { class: "inline" }, class: "border-0 bg-transparent p-0 font-sans text-sm text-ink-mute underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-rule-strong" %>

@@ -1,0 +1,62 @@
+<div id="<%= dom_id(todo) %>"
+     data-todo-id="<%= todo.id %>"
+     data-controller="todo-edit"
+     class="grid <%= todo.completed? ? "grid-cols-[auto_1fr_auto]" : "grid-cols-[auto_auto_1fr_auto]" %> items-center gap-4 border-t border-rule py-3.5 last:border-b">
+  <% unless todo.completed? %>
+    <button type="button"
+            data-sortable-handle
+            class="flex h-5 w-5 cursor-grab touch-none items-center justify-center border-0 bg-transparent p-0 text-ink-faint transition-colors hover:text-ink-mute active:cursor-grabbing"
+            aria-label="Réordonner la tâche">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <circle cx="5.5" cy="3" r="1.4"/><circle cx="10.5" cy="3" r="1.4"/>
+        <circle cx="5.5" cy="8" r="1.4"/><circle cx="10.5" cy="8" r="1.4"/>
+        <circle cx="5.5" cy="13" r="1.4"/><circle cx="10.5" cy="13" r="1.4"/>
+      </svg>
+    </button>
+  <% end %>
+
+  <%= button_to todo_path(todo),
+        method: :patch,
+        form: { class: "inline-flex", data: { turbo_stream: true } },
+        class: "flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border transition-colors " +
+          (todo.completed? ? "border-accent bg-accent text-paper" : "border-rule-strong bg-transparent text-transparent hover:border-ink-mute"),
+        aria: { label: todo.completed? ? "Marquer comme à faire" : "Marquer comme faite" } do %>
+    <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  <% end %>
+
+  <div>
+    <button type="button"
+            data-todo-edit-target="display"
+            data-action="click->todo-edit#edit"
+            class="w-full cursor-text border-0 bg-transparent p-0 text-left font-serif text-base leading-[1.55] <%= todo.completed? ? "text-ink-faint line-through" : "text-ink" %>">
+      <%= todo.content %>
+    </button>
+
+    <%= form_with model: todo, url: todo_path(todo), method: :patch,
+          data: { todo_edit_target: "form", turbo_stream: true },
+          class: "hidden" do |form| %>
+      <%= form.text_field :content,
+            value: todo.content,
+            id: dom_id(todo, "content"),
+            autocomplete: "off",
+            data: {
+              todo_edit_target: "input",
+              action: "keydown->todo-edit#keydown blur->todo-edit#cancel",
+              original: todo.content
+            },
+            class: "w-full border-0 border-b border-accent bg-transparent p-0 pb-px font-serif text-base leading-[1.55] text-ink outline-0" %>
+    <% end %>
+  </div>
+
+  <%= button_to todo_path(todo),
+        method: :delete,
+        form: { class: "inline-flex", data: { turbo_stream: true } },
+        class: "flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-ink-faint transition-colors hover:text-ink",
+        aria: { label: "Supprimer la tâche" } do %>
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  <% end %>
+</div>

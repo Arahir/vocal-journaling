@@ -1,0 +1,196 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+
+begin
+  require "bundler/setup"
+  require "prawn"
+rescue LoadError => error
+  warn "Could not load PDF dependencies: #{error.message}"
+  warn "Run `bundle install`, then try again."
+  exit 1
+end
+
+module MarkdownToPdf
+  APP_ROOT = File.expand_path("..", __dir__)
+  PAGE_MARGIN = 56
+  BODY_SIZE = 11
+  BODY_LEADING = 4
+  BULLET_INDENT = 16
+  FONT_FAMILY_NAME = "MarkdownToPdf"
+  FONT_CANDIDATES = [
+    {
+      normal: File.join(APP_ROOT, "app/assets/fonts/NotoSans-Regular.ttf"),
+      bold: File.join(APP_ROOT, "app/assets/fonts/NotoSans-Bold.ttf")
+    },
+    {
+      normal: "/System/Library/Fonts/Supplemental/Arial.ttf",
+      bold: "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
+    },
+    {
+      normal: "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+      bold: "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    },
+    {
+      normal: "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+      bold: "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+    }
+  ].freeze
+
+  Segment = Struct.new(:text, :bold, keyword_init: true)
+
+  class Renderer
+    def render(markdown, output_path)
+      Prawn::Document.generate(output_path, page_size: "A4", margin: PAGE_MARGIN) do |pdf|
+        configure_font(pdf)
+
+        markdown.each_line do |raw_line|
+          render_line(pdf, raw_line.chomp)
+        end
+      end
+    end
+
+    private
+
+    def configure_font(pdf)
+      font_family = configured_font_family || detected_font_family
+
+      if font_family
+        pdf.font_families.update(FONT_FAMILY_NAME => font_family)
+        pdf.font FONT_FAMILY_NAME
+      else
+        warn "No Unicode font found; falling back to PDF built-in Helvetica."
+        warn "Set MARKDOWN_TO_PDF_FONT=/path/to/font.ttf for broader UTF-8 support."
+        Prawn::Fonts::AFM.hide_m17n_warning = true
+        pdf.font "Helvetica"
+      end
+    end
+
+    def configured_font_family
+      return unless ENV["MARKDOWN_TO_PDF_FONT"]
+
+      normal = ENV.fetch("MARKDOWN_TO_PDF_FONT")
+      bold = ENV.fetch("MARKDOWN_TO_PDF_BOLD_FONT", normal)
+
+      unless File.file?(normal)
+        warn "MARKDOWN_TO_PDF_FONT does not point to a file: #{normal}"
+        return
+      end
+
+      {
+        normal: normal,
+        bold: File.file?(bold) ? bold : normal
+      }
+    end
+
+    def detected_font_family
+      FONT_CANDIDATES.find do |candidate|
+        File.file?(candidate[:normal]) && File.file?(candidate[:bold])
+      end
+    end
+
+    def render_line(pdf, line)
+      case line
+      when /\A#\s+(.+)\z/
+        pdf.text Regexp.last_match(1), size: 20, style: :bold
+        pdf.move_down 16
+      when /\A##\s+(.+)\z/
+        pdf.move_down 10
+        pdf.text Regexp.last_match(1), size: 14, style: :bold
+        pdf.move_down 8
+      when /\A-\s+(.+)\z/
+        render_bullet(pdf, Regexp.last_match(1))
+      when /\A\s*\z/
+        pdf.move_down 6
+      else
+        render_paragraph(pdf, line)
+      end
+    end
+
+    def render_bullet(pdf, text)
+      pdf.move_down 2
+      pdf.float do
+        pdf.text "-", size: BODY_SIZE, leading: BODY_LEADING
+      end
+
+      pdf.indent(BULLET_INDENT) do
+        pdf.text inline_markup(text), inline_format: true, size: BODY_SIZE, leading: BODY_LEADING
+      end
+
+      pdf.move_down 2
+    end
+
+    def render_paragraph(pdf, text)
+      pdf.text inline_markup(text), inline_format: true, size: BODY_SIZE, leading: BODY_LEADING
+      pdf.move_down 6
+    end
+
+    def inline_markup(text)
+      parse_inline(text).map do |segment|
+        escaped = escape_markup(segment.text)
+        segment.bold ? "<b>#{escaped}</b>" : escaped
+      end.join
+    end
+
+    def parse_inline(text)
+      segments = []
+      remaining = text.dup
+      bold = false
+
+      until remaining.empty?
+        marker_index = remaining.index("**")
+
+        if marker_index
+          value = remaining[0...marker_index]
+          segments << Segment.new(text: value, bold: bold) unless value.empty?
+          bold = !bold
+          remaining = remaining[(marker_index + 2)..] || ""
+        else
+          segments << Segment.new(text: remaining, bold: bold)
+          remaining = ""
+        end
+      end
+
+      segments
+    end
+
+    def escape_markup(text)
+      text.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+    end
+  end
+end
+
+options = {}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: script/markdown_to_pdf INPUT.md [OUTPUT.pdf]"
+
+  opts.on("-o", "--output PATH", "Write the PDF to PATH") do |path|
+    options[:output] = path
+  end
+
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit
+  end
+end
+
+args = parser.parse!
+input_path = args[0]
+
+unless input_path
+  warn parser
+  exit 1
+end
+
+unless File.file?(input_path)
+  warn "Input file not found: #{input_path}"
+  exit 1
+end
+
+output_path = options[:output] || args[1] || input_path.sub(/(?:\.[^.\/]+)?\z/, ".pdf")
+markdown = File.read(input_path, encoding: "UTF-8")
+
+MarkdownToPdf::Renderer.new.render(markdown, output_path)
+puts "Wrote #{output_path}"

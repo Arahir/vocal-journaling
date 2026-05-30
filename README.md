@@ -71,6 +71,22 @@ Suppression :
 bin/rails runner "User.find_by(email_address: 'demo@example.com')&.destroy!"
 ```
 
+## Convertir un export Markdown en PDF
+
+```sh
+script/markdown_to_pdf repas.md
+script/markdown_to_pdf repas.md repas.pdf
+```
+
+Le script utilise Prawn et détecte automatiquement une police Unicode courante.
+Pour forcer une police :
+
+```sh
+MARKDOWN_TO_PDF_FONT=/path/to/Regular.ttf \
+MARKDOWN_TO_PDF_BOLD_FONT=/path/to/Bold.ttf \
+script/markdown_to_pdf repas.md
+```
+
 ## Tests
 
 ```sh

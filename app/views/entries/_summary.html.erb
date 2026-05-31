@@ -1,13 +1,16 @@
-<turbo-frame id="summary">
-  <% if entry.summary.present? %>
+<% meals = entry.meals.ordered_for_display.to_a %>
+
+<turbo-frame id="<%= dom_id(entry, :summary) %>">
+  <% if entry.summary.present? || meals.any? %>
     <section class="mt-14 animate-fade-in-up">
       <div class="mb-3.5 flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint after:h-px after:flex-1 after:bg-rule after:content-['']">
-        Résumé
+        <%= entry.summary.present? ? "Résumé" : "Repas" %>
       </div>
 
-      <p class="mb-7 whitespace-pre-line font-serif text-[16.5px] leading-[1.7] text-ink-soft italic"><%= entry.summary %></p>
+      <% if entry.summary.present? %>
+        <p class="mb-7 whitespace-pre-line font-serif text-[16.5px] leading-[1.7] text-ink-soft italic"><%= entry.summary %></p>
+      <% end %>
 
-      <% meals = entry.meals.ordered_for_display %>
       <% if meals.any? %>
         <div class="flex flex-col">
           <% meals.each do |meal| %>
@@ -22,6 +25,14 @@
           <% end %>
         </div>
       <% end %>
+    </section>
+  <% elsif entry.processed? %>
+    <section class="mt-14 animate-fade-in-up">
+      <div class="mb-3.5 flex items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-ink-faint after:h-px after:flex-1 after:bg-rule after:content-['']">
+        Résumé
+      </div>
+
+      <p class="font-serif text-[16.5px] leading-[1.7] text-ink-mute italic">Aucun contenu structuré détecté.</p>
     </section>
   <% end %>
 </turbo-frame>

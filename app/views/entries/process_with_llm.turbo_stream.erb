@@ -1,2 +1,2 @@
 <%= turbo_stream.replace "flash", partial: "shared/flash" %>
-<%= turbo_stream.replace "summary", partial: "entries/summary", locals: { entry: @entry } %>
+<%= turbo_stream.replace dom_id(@entry, :summary), partial: "entries/summary", locals: { entry: @entry } %>

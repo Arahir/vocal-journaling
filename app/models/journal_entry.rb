@@ -16,9 +16,26 @@ class JournalEntry < ApplicationRecord
     raw_text.present? && (processed_at.blank? || updated_at > processed_at)
   end
 
+  def generated_content?
+    summary.present? || meals.any?
+  end
+
+  def history_processed?
+    processed? || generated_content?
+  end
+
   def summary_excerpt
-    return "Non traitée" if summary.blank?
+    return meal_excerpt if summary.blank?
 
     summary.split(/[.!?]/).first.to_s.strip.presence || summary.truncate(120)
   end
+
+  private
+    def meal_excerpt
+      first_meal = meals.ordered_for_display.first
+      return "#{Meal.french_label(first_meal.meal_type)} : #{first_meal.description}" if first_meal
+      return "Aucun contenu structuré détecté" if processed?
+
+      "Brouillon, non traité"
+    end
 end

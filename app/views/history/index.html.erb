@@ -9,6 +9,7 @@
   <% if @entries.any? %>
     <div class="flex flex-col">
       <% @entries.each do |entry| %>
+        <% history_processed = entry.history_processed? %>
         <%= link_to entry_path(entry.entry_date.iso8601),
               class: "group grid grid-cols-[140px_1fr_auto] items-baseline gap-7 border-t border-rule py-[18px] text-ink no-underline transition-[padding] hover:px-2 last:border-b max-sm:grid-cols-1 max-sm:gap-2" do %>
           <div class="font-serif text-[17px] font-medium tracking-tightish">
@@ -18,20 +19,16 @@
             </span>
           </div>
 
-          <div class="<%= entry.summary.present? ? "line-clamp-1 font-serif text-[15.5px] text-ink-soft italic" : "font-serif text-[15.5px] text-ink-mute" %>">
-            <% if entry.summary.present? %>
-              <%= entry.summary.split(/(?<=[.!?])\s+/).first %>
-            <% else %>
-              Brouillon, non traité
-            <% end %>
+          <div class="<%= history_processed ? "line-clamp-1 font-serif text-[15.5px] text-ink-soft italic" : "font-serif text-[15.5px] text-ink-mute" %>">
+            <%= entry.summary_excerpt %>
           </div>
 
           <div class="inline-flex items-center gap-2 font-sans text-[11.5px] text-ink-faint max-sm:hidden">
-            <% if entry.summary.blank? %>
+            <% if history_processed %>
+              <span class="-translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">→</span>
+            <% else %>
               <span class="h-[5px] w-[5px] rounded-full bg-ink-faint"></span>
               non traité
-            <% else %>
-              <span class="-translate-x-1 opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100">→</span>
             <% end %>
           </div>
         <% end %>

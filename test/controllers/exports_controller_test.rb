@@ -14,6 +14,8 @@ class ExportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "textarea[name=markdown]"
+    assert_select "[contenteditable=true][data-markdown-editor-target=editor]"
+    assert_select "[data-controller=markdown-editor]"
     assert_includes response.body, "café"
     assert_not_includes response.body, "secret"
   end

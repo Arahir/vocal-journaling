@@ -6,9 +6,12 @@
     Génère un récapitulatif Markdown, ajuste le texte si besoin, puis télécharge-le en Markdown ou en PDF.
   </p>
 
+  <% form_data = { turbo: false } %>
+  <% form_data.merge!(controller: "markdown-editor", action: "submit->markdown-editor#sync") if @markdown.present? %>
+
   <%= form_with url: export_path,
         method: :post,
-        data: { turbo: false },
+        data: form_data,
         class: "flex max-w-content flex-col gap-6" do |form| %>
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-1.5">
@@ -47,13 +50,60 @@
     </div>
 
     <% if @markdown.present? %>
-      <div class="mt-5 flex flex-col gap-2">
-        <%= form.label :markdown, "Markdown", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+      <div class="mt-5 flex flex-col gap-3">
         <%= form.text_area :markdown,
               value: @markdown,
-              rows: 18,
-              spellcheck: "true",
-              class: "min-h-[460px] w-full resize-y rounded-md border border-rule-strong bg-paper-soft p-4 font-mono text-[13px] leading-relaxed text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-ring" %>
+              data: { markdown_editor_target: "input" },
+              class: "hidden",
+              tabindex: "-1",
+              aria: { hidden: "true" } %>
+
+        <div class="flex flex-wrap items-center gap-1.5 border-y border-rule py-2">
+          <button type="button"
+                  title="Gras"
+                  data-action="mousedown->markdown-editor#keepSelection click->markdown-editor#format"
+                  data-markdown-editor-command-param="bold"
+                  class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent font-sans text-sm font-semibold text-ink transition-colors hover:border-rule-strong hover:bg-paper-soft">
+            B
+          </button>
+          <button type="button"
+                  title="Titre principal"
+                  data-action="mousedown->markdown-editor#keepSelection click->markdown-editor#format"
+                  data-markdown-editor-command-param="h1"
+                  class="inline-flex h-9 min-w-10 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent px-2 font-sans text-xs font-semibold text-ink transition-colors hover:border-rule-strong hover:bg-paper-soft">
+            H1
+          </button>
+          <button type="button"
+                  title="Sous-titre"
+                  data-action="mousedown->markdown-editor#keepSelection click->markdown-editor#format"
+                  data-markdown-editor-command-param="h2"
+                  class="inline-flex h-9 min-w-10 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent px-2 font-sans text-xs font-semibold text-ink transition-colors hover:border-rule-strong hover:bg-paper-soft">
+            H2
+          </button>
+          <button type="button"
+                  title="Paragraphe"
+                  data-action="mousedown->markdown-editor#keepSelection click->markdown-editor#format"
+                  data-markdown-editor-command-param="p"
+                  class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent font-sans text-base text-ink transition-colors hover:border-rule-strong hover:bg-paper-soft">
+            ¶
+          </button>
+          <button type="button"
+                  title="Liste"
+                  data-action="mousedown->markdown-editor#keepSelection click->markdown-editor#format"
+                  data-markdown-editor-command-param="ul"
+                  class="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border border-transparent bg-transparent font-sans text-lg text-ink transition-colors hover:border-rule-strong hover:bg-paper-soft">
+            •
+          </button>
+        </div>
+
+        <div data-markdown-editor-target="editor"
+             data-action="input->markdown-editor#sync paste->markdown-editor#paste blur->markdown-editor#sync"
+             contenteditable="true"
+             role="textbox"
+             aria-label="Éditeur d’export"
+             aria-multiline="true"
+             spellcheck="true"
+             class="markdown-editor min-h-[460px] w-full rounded-md border border-rule-strong bg-paper-soft px-5 py-5 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-ring"></div>
       </div>
     <% end %>
   <% end %>

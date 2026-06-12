@@ -189,4 +189,47 @@
   .picker-day:disabled {
     @apply cursor-not-allowed opacity-25;
   }
+
+  .markdown-editor {
+    @apply font-serif text-base leading-relaxed text-ink;
+  }
+
+  .markdown-editor h1 {
+    @apply mb-4 font-serif text-2xl font-medium tracking-tight2 text-ink;
+  }
+
+  .markdown-editor h2 {
+    @apply mt-7 mb-2 font-serif text-xl font-medium tracking-tightish text-ink;
+  }
+
+  .markdown-editor p {
+    @apply mb-4 text-ink-soft;
+  }
+
+  .markdown-editor ul,
+  .markdown-editor ol {
+    @apply mb-4 pl-6 text-ink-soft;
+  }
+
+  .markdown-editor ul {
+    @apply list-disc;
+  }
+
+  .markdown-editor ol {
+    @apply list-decimal;
+  }
+
+  .markdown-editor li {
+    @apply my-1 pl-1;
+  }
+
+  .markdown-editor strong,
+  .markdown-editor b {
+    @apply font-semibold text-ink;
+  }
+
+  .markdown-editor:empty::before {
+    content: "Commence à écrire...";
+    @apply text-ink-faint;
+  }
 }

@@ -20,6 +20,15 @@ class MarkdownToPdfRenderer
     accent_soft: "F6E8E0",
     panel: "FCF8F2"
   }.freeze
+  MEAL_COLORS = {
+    breakfast: "C76F3D",
+    lunch: "4B8A6A",
+    dinner: "5F6FB2",
+    snack: "B9852B",
+    other: "8A6D9B",
+    detail: "7A746D",
+    note: "7A746D"
+  }.freeze
   FONT_CANDIDATES = [
     {
       normal: APP_ROOT.join("app/assets/fonts/NotoSans-Regular.ttf").to_s,
@@ -117,6 +126,7 @@ class MarkdownToPdfRenderer
     label, description = meal_parts(text)
     description = description.presence || label
     label = label.present? && description != label ? label : "Note"
+    meal_color = meal_color(label)
 
     description_height = pdf.height_of_formatted(
       formatted_segments(description, color: COLORS[:soft_ink]),
@@ -132,18 +142,15 @@ class MarkdownToPdfRenderer
     pdf.fill_color COLORS[:panel]
     pdf.fill_rounded_rectangle [ 0, top ], pdf.bounds.width, row_height, 6
 
-    pdf.fill_color COLORS[:accent]
+    pdf.fill_color meal_color
     pdf.fill_rectangle [ 0, top - 6 ], 3, row_height - 12
 
-    pdf.fill_color COLORS[:accent_soft]
-    pdf.fill_rounded_rectangle [ 14, top - ROW_PADDING ], LABEL_WIDTH - 8, 20, 10
-
-    pdf.fill_color COLORS[:accent]
+    pdf.fill_color meal_color
     pdf.text_box label,
-      at: [ 24, top - ROW_PADDING - 4 ],
-      width: LABEL_WIDTH - 28,
-      height: 14,
-      size: 8.5,
+      at: [ 16, top - ROW_PADDING - 2 ],
+      width: LABEL_WIDTH - 10,
+      height: row_height - (ROW_PADDING * 2),
+      size: 9,
       style: :bold,
       overflow: :shrink_to_fit
 
@@ -270,6 +277,26 @@ class MarkdownToPdfRenderer
     end
 
     [ nil, text ]
+  end
+
+  def meal_color(label)
+    normalized = I18n.transliterate(label.to_s).downcase
+
+    if normalized.include?("petit")
+      MEAL_COLORS[:breakfast]
+    elsif normalized.include?("dej")
+      MEAL_COLORS[:lunch]
+    elsif normalized.include?("diner")
+      MEAL_COLORS[:dinner]
+    elsif normalized.include?("snack")
+      MEAL_COLORS[:snack]
+    elsif normalized.include?("detail")
+      MEAL_COLORS[:detail]
+    elsif normalized.include?("autre")
+      MEAL_COLORS[:other]
+    else
+      MEAL_COLORS[:note]
+    end
   end
 
   def ensure_space(pdf, height)

@@ -1,6 +1,6 @@
 # Journal vocal
 
-POC Rails 8 de journaling vocal local avec login, dictée Web Speech API, résumé LLM via OpenRouter et export Markdown des repas.
+POC Rails 8 de journaling vocal local avec login, dictée Web Speech API, résumé LLM via OpenRouter et export éditable des repas en Markdown ou PDF.
 
 ## Setup
 
@@ -71,7 +71,11 @@ Suppression :
 bin/rails runner "User.find_by(email_address: 'demo@example.com')&.destroy!"
 ```
 
-## Convertir un export Markdown en PDF
+## Exporter en PDF
+
+La page Export génère un aperçu Markdown éditable avant téléchargement. Depuis cet aperçu, le contenu peut être téléchargé en `.md` ou rendu en `.pdf`.
+
+Le convertisseur reste disponible en script pour transformer un fichier Markdown local :
 
 ```sh
 script/markdown_to_pdf repas.md

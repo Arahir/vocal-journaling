@@ -3,13 +3,13 @@
 <main class="mx-auto max-w-content px-7 pt-12 pb-32">
   <h1 class="mb-2 font-serif text-2xl font-medium tracking-tight2">Exporter les repas</h1>
   <p class="mb-9 max-w-[480px] font-sans text-sm leading-relaxed text-ink-mute">
-    Télécharge un fichier Markdown récapitulant les repas sur la période choisie.
+    Génère un récapitulatif Markdown, ajuste le texte si besoin, puis télécharge-le en Markdown ou en PDF.
   </p>
 
   <%= form_with url: export_path,
         method: :post,
         data: { turbo: false },
-        class: "flex max-w-[460px] flex-col gap-5" do |form| %>
+        class: "flex max-w-content flex-col gap-6" do |form| %>
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-1.5">
         <%= form.label :from, "Du", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
@@ -30,7 +30,31 @@
       </div>
     </div>
 
-    <%= form.submit "Télécharger",
-          class: "self-start inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
+    <div class="flex flex-wrap gap-3">
+      <%= form.submit "Générer l’aperçu",
+            class: "inline-flex cursor-pointer items-center gap-2.5 rounded-pill border-0 bg-ink px-5 py-3 font-sans text-sm font-medium text-paper transition-colors hover:bg-black" %>
+
+      <% if @markdown.present? %>
+        <%= form.button "Télécharger Markdown",
+              name: "download",
+              value: "markdown",
+              class: "inline-flex cursor-pointer items-center gap-2.5 rounded-pill border border-rule-strong bg-transparent px-5 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent" %>
+        <%= form.button "Télécharger PDF",
+              name: "download",
+              value: "pdf",
+              class: "inline-flex cursor-pointer items-center gap-2.5 rounded-pill border border-rule-strong bg-transparent px-5 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-accent hover:text-accent" %>
+      <% end %>
+    </div>
+
+    <% if @markdown.present? %>
+      <div class="mt-5 flex flex-col gap-2">
+        <%= form.label :markdown, "Markdown", class: "font-sans text-[11.5px] font-medium uppercase tracking-wider text-ink-mute" %>
+        <%= form.text_area :markdown,
+              value: @markdown,
+              rows: 18,
+              spellcheck: "true",
+              class: "min-h-[460px] w-full resize-y rounded-md border border-rule-strong bg-paper-soft p-4 font-mono text-[13px] leading-relaxed text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-ring" %>
+      </div>
+    <% end %>
   <% end %>
 </main>
